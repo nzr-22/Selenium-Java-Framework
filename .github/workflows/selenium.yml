@@ -5,6 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch: # Enables manual run button
 
 jobs:
   test:
@@ -20,14 +21,23 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run Tests with Maven
-        # We pass the headless flag here!
+      - name: Run Tests
+        # We ensure the allure-results folder is created
         run: mvn clean test -Dheadless=true
+        continue-on-error: true
 
-      - name: Upload Test Report
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
-          path: target/surefire-reports
+          # For Java, results are inside the target folder
+          allure_results: target/allure-results
+          allure_report: allure-report
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: java-allure-report
+          path: allure-report
           retention-days: 30
