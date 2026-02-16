@@ -2,8 +2,10 @@ package com.sauce.base;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -30,12 +32,19 @@ public class BaseTest {
         System.out.println("Running on Browser: " + browserName);
 
         // Simple check to support multiple browsers in the future
-        if (browserName.equalsIgnoreCase("chrome")) {
-            driver = new ChromeDriver();
-        } else {
-            throw new RuntimeException("Browser not supported: " + browserName);
+        //   if (browserName.equalsIgnoreCase("chrome")) {
+        //       driver = new ChromeDriver();
+        //   } else {
+        //       throw new RuntimeException("Browser not supported: " + browserName);
+        //   }
+        ChromeOptions options = new ChromeOptions();
+
+        // Check if we passed "-Dheadless=true" from the command line
+        if (Boolean.parseBoolean(System.getProperty("headless"))) {
+            options.addArguments("--headless=new"); // Run in headless mode
         }
 
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
